@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flashcard_quiz_app/model/database_helper.dart';
 import 'package:flashcard_quiz_app/widgets/score_Board.dart';
 import 'package:flutter/material.dart';
@@ -31,13 +33,10 @@ class _QuizScreenState extends State<QuizScreen> {
 
   void _checkAnswer() {
     String userAnswer = _answerController.text.trim().toLowerCase();
-    String correctAnswer =
-        _quizFlashcards[_currentIndex]['answer'].trim().toLowerCase();
+    String correctAnswer = _quizFlashcards[_currentIndex]['answer'].trim().toLowerCase();
     if (userAnswer.isNotEmpty) {
       if (userAnswer == correctAnswer) {
         _score++;
-      } else {
-        _showResult();
       }
     }
   }
@@ -70,6 +69,7 @@ class _QuizScreenState extends State<QuizScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
+        foregroundColor: Colors.white,
         title: Text('Quiz Mode',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -154,7 +154,7 @@ class _QuizScreenState extends State<QuizScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: () {
-                        if (_currentIndex > 1) {
+                        if (_currentIndex > 0) {
                           setState(() {
                             _currentIndex--;
                             _answerController.clear();
@@ -192,21 +192,28 @@ class _QuizScreenState extends State<QuizScreen> {
                     ),
                     ElevatedButton(
                       onPressed: (){
-                     if (_currentIndex < _quizFlashcards.length - 1) {
-                       if (_answerController.text.isNotEmpty) {
+                     if (_answerController.text.isNotEmpty && _currentIndex < _quizFlashcards.length -1) {
+                         _checkAnswer();
                          _currentIndex++;
                          setState(() {
                            _answerController.clear();
-                         });
+                           });
                        }
+                     else if(_currentIndex == _quizFlashcards.length-1){
+                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                         content: Text('Questions Ended Submit Your Quiz'),
+                         elevation: 3,
+                         behavior: SnackBarBehavior.floating,
+                         backgroundColor: Colors.blueAccent,
+                       ));
+                     }
                        else {
                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                           content: Text('Please Answer First'),
+                           content: Text('Answer Please'),
                            elevation: 3,
                            behavior: SnackBarBehavior.floating,
                            backgroundColor: Colors.blueAccent,
                          ));
-                       }
                      } },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.greenAccent.shade700,
@@ -224,15 +231,13 @@ class _QuizScreenState extends State<QuizScreen> {
                 SizedBox(height: 20,),
                 ElevatedButton(
                   onPressed: () {
-                    if(_answerController.text.isNotEmpty) {
-                      _checkAnswer();
-                      setState(() {
-                        _showResult();
-                      });
-                    }
+                    if(_currentIndex < _quizFlashcards.length) {
+                    setState(() {
+                    _showResult();
+                    });}
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.indigoAccent,
+                    backgroundColor: Colors.blueAccent,
                     padding:
                     EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     shape: RoundedRectangleBorder(
@@ -246,6 +251,12 @@ class _QuizScreenState extends State<QuizScreen> {
           ),
         ],
       ),
+      floatingActionButton: ElevatedButton(onPressed: (){
+        setState(() {
+          _score = 0;
+          _currentIndex = 0;
+        });
+      }, child: Text('Restart Quiz')),
     );
   }
 }

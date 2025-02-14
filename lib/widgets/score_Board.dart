@@ -37,7 +37,14 @@ class _ScoreBoardState extends State<ScoreBoard> {
           child: Column(
             children: [
               SizedBox(height: 20,),
-            Text('Quiz ScoreBoard',style: TextStyle(fontWeight: FontWeight.w500,color: Colors.white,fontSize: 25)),
+             Row(
+               children: [
+                 BackButton(color: Colors.white,),
+                 SizedBox(width: 65,),
+                 Text(textAlign: TextAlign.center,
+                     'Quiz ScoreBoard',style: TextStyle(fontWeight: FontWeight.w500,color: Colors.white,fontSize: 25)),
+               ],
+             ),
               SizedBox(
                 height: 30,
               ),
